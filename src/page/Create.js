@@ -6,12 +6,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {useForm, Controller} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import _ from 'lodash';
 
 //action
 import {SendMember} from '../actions/auth.action';
@@ -22,7 +24,7 @@ const Create = ({navigation, dispatch, getMember, route}) => {
   const [id, setid] = useState('');
   const [phone, setphone] = useState('');
 
-  const phoneRegExp = '^[0-9]{3}-[0-9]{4}-[0-9]{4}$';
+  const phoneRegExp = '^[0-9]{10}$';
   const idRegExp = '^[0-9]{13}$';
 
   useEffect(() => {
@@ -98,7 +100,11 @@ const Create = ({navigation, dispatch, getMember, route}) => {
         navigation.navigate('Main');
       }
     } else {
-      let item = getMember.isResult;
+      let temp = [];
+      if (getMember.isResult != null && _.size(getMember.isResult) !== 0) {
+        temp = getMember.isResult;
+      }
+      let item = temp;
       item.push(data);
       await dispatch(SendMember(item));
       navigation.navigate('Main');
@@ -108,55 +114,53 @@ const Create = ({navigation, dispatch, getMember, route}) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={{flex: 1}}>
+      style={styles.continer}>
       <ScrollView>
-        <View style={{paddingHorizontal: 20, paddingTop: 40}}>
+        <View style={styles.continer2}>
           <Controller
             control={control}
             rules={{
+              maxLength: 100,
               required: true,
             }}
             render={({field: {onChange, onBlur, value}}) => (
-              <View style={{marginTop: 10}}>
-                <Text>ชื่อ</Text>
+              <View style={styles.marginTop10}>
+                <Text style={styles.textlabel}>ชื่อ</Text>
                 <TextInput
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  style={{borderBottomWidth: 1, padding: 0}}
+                  style={styles.textInput}
                 />
               </View>
             )}
             name="firstName"
           />
           {errors.firstName != null ? (
-            <Text style={{fontSize: 14, color: 'red'}}>
-              {errors.firstName.message}
-            </Text>
+            <Text style={styles.texterror}>{errors.firstName.message}</Text>
           ) : null}
 
           <Controller
             control={control}
             rules={{
               maxLength: 100,
+              required: true,
             }}
             render={({field: {onChange, onBlur, value}}) => (
-              <View style={{marginTop: 28}}>
-                <Text>นามสกุล</Text>
+              <View style={styles.marginTop28}>
+                <Text style={styles.textlabel}>นามสกุล</Text>
                 <TextInput
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  style={{borderBottomWidth: 1, padding: 0}}
+                  style={styles.textInput}
                 />
               </View>
             )}
             name="lastName"
           />
           {errors.lastName != null ? (
-            <Text style={{fontSize: 14, color: 'red'}}>
-              {errors.lastName.message}
-            </Text>
+            <Text style={styles.texterror}>{errors.lastName.message}</Text>
           ) : null}
 
           <Controller
@@ -164,24 +168,23 @@ const Create = ({navigation, dispatch, getMember, route}) => {
             rules={{
               maxLength: 13,
               pattern: idRegExp,
+              required: true,
             }}
             render={({field: {onChange, onBlur, value}}) => (
-              <View style={{marginTop: 28}}>
-                <Text>เลขบัตรประชาชน</Text>
+              <View style={styles.marginTop28}>
+                <Text style={styles.textlabel}>เลขบัตรประชาชน</Text>
                 <TextInput
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  style={{borderBottomWidth: 1, padding: 0}}
+                  style={styles.textInput}
                 />
               </View>
             )}
             name="id"
           />
           {errors.id != null ? (
-            <Text style={{fontSize: 14, color: 'red'}}>
-              {errors.id.message}
-            </Text>
+            <Text style={styles.texterror}>{errors.id.message}</Text>
           ) : null}
 
           <Controller
@@ -189,41 +192,32 @@ const Create = ({navigation, dispatch, getMember, route}) => {
             rules={{
               maxLength: 10,
               pattern: phoneRegExp,
+              required: true,
             }}
             render={({field: {onChange, onBlur, value}}) => (
-              <View style={{marginTop: 28}}>
-                <Text>เบอร์โทรศัพท์</Text>
+              <View style={styles.marginTop28}>
+                <Text style={styles.textlabel}>เบอร์โทรศัพท์</Text>
                 <TextInput
                   ref={register('phone')}
                   keyboardType="phone-pad"
                   onBlur={onBlur}
                   onChangeText={onChange}
                   value={value}
-                  style={{borderBottomWidth: 1, padding: 0}}
+                  style={styles.textInput}
                 />
               </View>
             )}
             name={'phone'}
           />
           {errors.phone != null ? (
-            <Text style={{fontSize: 14, color: 'red'}}>
-              {errors.phone.message}
-            </Text>
+            <Text style={styles.texterror}>{errors.phone.message}</Text>
           ) : null}
 
-          <View style={{alignItems: 'center', marginVertical: 28}}>
+          <View style={styles.viewTouch}>
             <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
-              style={{
-                borderWidth: 1,
-                width: '48%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingVertical: 10,
-                borderColor: '#000',
-                borderRadius: 8,
-              }}>
-              <Text style={{fontSize: 18, color: '#000'}}>ยืนยัน</Text>
+              style={styles.TouchStyle}>
+              <Text style={styles.TextTouch}>ยืนยัน</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -231,6 +225,51 @@ const Create = ({navigation, dispatch, getMember, route}) => {
     </KeyboardAvoidingView>
   );
 };
+
+const styles = StyleSheet.create({
+  continer: {
+    flex: 1,
+  },
+  continer2: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+  },
+  marginTop10: {
+    marginTop: 10,
+  },
+  marginTop28: {
+    marginTop: 28,
+  },
+  textlabel: {
+    fontSize: 12,
+    color: '#000',
+  },
+  texterror: {
+    fontSize: 14,
+    color: 'red',
+  },
+  textInput: {
+    borderBottomWidth: 1,
+    padding: 0,
+  },
+  viewTouch: {
+    alignItems: 'center',
+    marginVertical: 28,
+  },
+  TouchStyle: {
+    borderWidth: 1,
+    width: '48%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderColor: '#000',
+    borderRadius: 8,
+  },
+  TextTouch: {
+    fontSize: 18,
+    color: '#000',
+  },
+});
 
 const mapStateToProps = state => ({
   getMember: state.dataReducers.getMember,
